@@ -86,6 +86,7 @@ def query_quake3_server(server, port):
 
 @tasks.loop(seconds=sec)
 async def start_checks():
+    global channel
     logger.info("DEBUG: Running the loop.")
     if check() is True:
         logger.info("DEBUG: Sending the message to channel.")
