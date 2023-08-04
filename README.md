@@ -8,6 +8,8 @@ A basic Discord bot to monitor a Quake 3 server.
     
     py -3 -m pip install -U pyq3serverlist
 
+    py -3 -m pip install -U cysystemd
+
 ## .env File
 - AUTH_TOKEN     - Your Discord OAuth Token
 - HOSTNAME       - FQDN of game server

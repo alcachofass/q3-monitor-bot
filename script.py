@@ -5,6 +5,12 @@ from pyq3serverlist import Server
 from pyq3serverlist.exceptions import PyQ3SLError, PyQ3SLTimeoutError
 from dotenv import load_dotenv
 from discord.ext import tasks
+import logging
+from cysystemd import journal
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
+logger.addHandler(journal.JournaldLogHandler())
 
 load_dotenv()
 
@@ -14,34 +20,52 @@ sec             = int(os.environ.get('SECONDS'))
 token           = str(os.environ.get('AUTH_TOKEN'))
 channel         = int(os.environ.get('CHANNEL_ID'))
 
-old_count = int()
-new_count = int()
+old_count     = int()
+new_count     = int()
+server_status = str()
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
 
-def check():    
-    global old_count
-    global new_count 
+def check():
+    logger.info("DEBUG: Checking player count.")
 
-    serverStatus = query_quake3_server(hostname,port)            
-    new_count = len(serverStatus["players"])
+    global old_count
+    global new_count
+    global server_status
+
+    server_status = query_quake3_server(hostname,port)
+    #new_count = len(server_status["players"])
+
+    j = 0
+    for i in server_status["players"]:
+        ping  = str(i['ping'])
+        if ping != '0':
+            j+=1
+
+    new_count = j
+
+    logger.info("DEBUG: Old count is " + str(old_count))
+    logger.info("DEBUG: New count is " + str(new_count))
 
     if old_count != new_count:
-        print("Player count is different. Post server details.")
+        logger.info("DEBUG: Player count is different. Post server details.")
         old_count = new_count
         return(True)
     return(False)
 
 def create_message():
+    logger.info("DEBUG: Creating the message.")
+
+    global server_status
     this_message = ""
     ip = socket.gethostbyname(hostname)
     this_message = this_message + "__" + hostname + " | " + ip + ":" + str(port) + "__" + "\n"
     this_message = this_message + "> **Player**" + " | " + "**Frags**" + "\n"
-    serverStatus = query_quake3_server(hostname,port)               
-    for i in serverStatus["players"]:
+
+    for i in server_status["players"]:
         name  = str(i['name'])
         frags = str(i['frags'])
         ping  = str(i['ping'])
@@ -50,26 +74,34 @@ def create_message():
     return(this_message)
 
 def query_quake3_server(server, port):
+    logger.info("DEBUG: Querying server.")
+
     server = Server(server, port)
+
     try:
         info = server.get_status()
         return(info)
     except (PyQ3SLError, PyQ3SLTimeoutError) as e:
-        print(e)
+        logger.info(e)
 
 @tasks.loop(seconds=sec)
 async def start_checks():
+    logger.info("DEBUG: Running the loop.")
     if check() is True:
-        print(create_message())
+        logger.info("DEBUG: Sending the message to channel.")
         await channel.send(create_message())
 
 
 @client.event
 async def on_ready():
     global channel
-    print("bot:user ready == {0.user}".format(client))
+    global old_count
+
+    old_count = 0
+
+    logger.info("bot:user ready == {0.user}".format(client))
     channel = client.get_channel(channel)
-    print("bot:user is in channel: " + str(channel))
+    logger.info("bot:user is in channel: " + str(channel))
     start_checks.start()
 
 client.run(token)
