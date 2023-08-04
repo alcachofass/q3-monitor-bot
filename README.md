@@ -2,13 +2,13 @@
 A basic Discord bot to monitor a Quake 3 server.
 
 ## Requirements
-    py -3 -m pip install -U discord.py
+    pip install -U discord.py
     
-    py -3 -m pip install -U python-dotenv
+    pip install -U python-dotenv
     
-    py -3 -m pip install -U pyq3serverlist
+    pip install -U pyq3serverlist
 
-    py -3 -m pip install -U cysystemd
+    pip install -U cysystemd
 
 ## .env File
 - AUTH_TOKEN     - Your Discord OAuth Token
