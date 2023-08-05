@@ -37,8 +37,7 @@ def check():
     global server_status
 
     server_status = query_quake3_server(hostname,port)
-    #new_count = len(server_status["players"])
-
+    
     j = 0
     for i in server_status["players"]:
         ping  = str(i['ping'])
@@ -62,7 +61,13 @@ def create_message():
     global server_status
     this_message = ""
     ip = socket.gethostbyname(hostname)
-    this_message = this_message + "__" + hostname + " | " + ip + ":" + str(port) + "__" + "\n"
+    this_message = this_message + "**Server: **" + "__" + hostname + " | " + ip + ":" + str(port) + "__" + "\n"
+
+    map = str(server_status['mapname'])
+    gameType = str(server_status['g_gametype'])  
+
+    this_message = this_message + "**Map: **" + map +"\n"
+    this_message = this_message + "**Game Type: **" + gameType + "\n"
     this_message = this_message + "> **Player**" + " | " + "**Frags**" + "\n"
 
     for i in server_status["players"]:
