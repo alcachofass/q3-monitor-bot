@@ -95,7 +95,11 @@ async def start_checks():
     logger.info("DEBUG: Running the loop.")
     if check() is True:
         logger.info("DEBUG: Sending the message to channel.")
-        await channel.send(create_message())
+        try:
+            await channel.send(create_message())
+        except:
+            logger.info("DEBUG: Sending the message FAILED.")
+
 
 
 @client.event
