@@ -96,7 +96,10 @@ async def start_checks():
     if check() is True:
         logger.info("DEBUG: Sending the message to channel.")
         try:
-            await channel.send(create_message())
+            logger.info("DEBUG: Trying to create the message.")
+            message = create_message()
+            logger.info("DEBUG: Message created, sending to channel.")
+            await channel.send(message)
         except:
             logger.info("DEBUG: Sending the message FAILED.")
 
