@@ -4,6 +4,7 @@ After=multi-user.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3 /root/scripts/q3monitorbot/script.py
+User=yourUserAccount
+ExecStart=/usr/bin/python3 /home/yourUserAccount/q3monitorbot/script.py
 [Install]
 WantedBy=multi-user.target
